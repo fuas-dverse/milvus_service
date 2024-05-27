@@ -1,5 +1,4 @@
 import os
-
 from dotenv import load_dotenv
 from pymilvus import connections, utility, FieldSchema, CollectionSchema, DataType, Collection
 from sentence_transformers import SentenceTransformer
@@ -70,7 +69,10 @@ class DatabaseManager:
         collection.load()
         vector_to_search = self.generate_embeddings(topics)
         search_params = {"metric_type": "L2", "params": {"nprobe": 10}}
-        return collection.search([vector_to_search], "embeddings", search_params, limit=3, output_fields=["name"])
-
-
-
+        return collection.search(
+            data=[vector_to_search],
+            anns_field="embeddings",
+            param=search_params,
+            limit=3,
+            output_fields=["name", "description", "output_format"]
+        )
