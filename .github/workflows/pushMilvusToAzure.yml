@@ -33,27 +33,34 @@ jobs:
 
     steps:  
 
-      # - name: Deploy to Azure Web App  
-      #   id: deploy-to-webapp  
-      #   uses: azure/webapps-deploy@v2  
-      #   with:  
-      #     app-name: ${{ env.AZURE_WEBAPP_NAME }}  
-      #     publish-profile: ${{ secrets.MILVUS_AZURE_PUBLISH_PROFILE }}  
-      #     images: 'milvus.azurecr.io/myapp:${{ github.sha }}'
       - uses: azure/docker-login@v1
         with:
             login-server: milvus.azurecr.io
             username: ${{ secrets.REGISTRY_USERNAME }}
             password: ${{ secrets.REGISTRY_PASSWORD }}
-          
-      - name: 'Deploy to Azure Container Instances'
-        uses: 'azure/aci-deploy@v1'
+
+            
+      - name: Deploy to Azure Container Instances
+        uses: Azure/aci-deploy@v1
         with:
+          # Name of the Resource Group in which the Container Instance will be created
           resource-group: ${{ secrets.RESOURCE_GROUP }}
+          # The DNS Name Label for Container with Public IP
           dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }}
+          # Specify the fully qualified container image name. For example, "myregistry.azurecr.io/nginx:latest" or "python:3.7.2-alpine/"
           image: 'milvus.azurecr.io/myapp:${{ github.sha }}'
+          # Location where the Container will be deployed
+          location: 'Australia East'
+          # Name of the Container Group Instance
+          name: milvus-dverse-instance.azurecr.io
+          # The Ports to Open on the Container. Space seperate the ports for multiple values
+          ports: 80
+          # The Network protocol to use. Accepted Values are { TCP, UDP }
+          protocol: TCP
+          # The container image registry login server
           registry-login-server: milvus.azurecr.io
+          # Username to log in Container Image Registry Server
           registry-username: ${{ secrets.REGISTRY_USERNAME }}
+          # Password to log in Container Image Registry Server
           registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-          name: milvus-dverse-instance
-          location: 'west us'
+      
