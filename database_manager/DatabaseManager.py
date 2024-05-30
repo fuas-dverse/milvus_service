@@ -73,6 +73,6 @@ class DatabaseManager:
             data=[vector_to_search],
             anns_field="embeddings",
             param=search_params,
-            limit=3,
+            limit=10,
             output_fields=["name", "description", "output_format"]
         )
