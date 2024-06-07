@@ -24,13 +24,14 @@ def get_agents(intent: str):
     agents = []
 
     for result in results:
-        for obj in result:
-            agent = {
-                "name": obj.entity.get("name"),
-                "description": obj.entity.get("description"),
-                "output_format": obj.entity.get("output_format"),
-            }
-            agents.append(agent)
+        print("Res: ",result)
+    
+        agent = {
+            "name": result["entity"].get("name"),
+            "description": result["entity"].get("description"),
+            "output_format": result["entity"].get("output_format"),
+        }
+        agents.append(agent)
 
     return Response(message=json.dumps(agents), status_code=200)
 
