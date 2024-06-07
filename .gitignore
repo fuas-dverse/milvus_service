@@ -163,3 +163,4 @@ cython_debug/
 
 # Ignore keys generated
 .pem
+KeyGeneration/*.pem
