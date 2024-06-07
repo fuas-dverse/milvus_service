@@ -116,6 +116,7 @@ class DatabaseManager:
 
         return encrypted
     
+    # As the env file is not good to save the private key I keep it in the orginal file and load this
     def read_private_key(self):
         try:
             with open("./KeyGeneration/private_key.pem", "r") as file:
@@ -123,7 +124,6 @@ class DatabaseManager:
             return private_key
         except FileNotFoundError:
             print("The specified file does not exist.")
-
 
     def decrypt_with_private_key(self, ciphertext):
 
@@ -157,7 +157,7 @@ class DatabaseManager:
         return decrypted.decode()
 
 
-
+    # In thsi function you give the result of the collection search and it will give you the decrypted results back
     def decrypt_results(self, results):
         decrypted_results = []
         for hits in results:
