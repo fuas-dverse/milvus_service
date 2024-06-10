@@ -14,6 +14,25 @@ env:
         ./k8/milvusservice-deployment.yaml
         ./k8/milvusservice-service.yaml
 jobs:
+    build_and_push:
+      runs-on: ubuntu-latest
+      defaults:
+        run:
+          shell: bash
+          working-directory: .
+      steps:
+        - uses: actions/checkout@v2
+
+        - uses: azure/docker-login@v1
+          with:
+            login-server: milvus.azurecr.io
+            username: ${{ secrets.REGISTRY_USERNAME }}
+            password: ${{ secrets.REGISTRY_PASSWORD }}
+
+        - name: Build and Push Docker image
+          run: |
+            docker build -t milvus.azurecr.io/myapp:${{ github.sha }} .
+            docker push milvus.azurecr.io/myapp:${{ github.sha }}
     deploy:
         permissions:
             actions: read
