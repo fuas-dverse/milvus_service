@@ -32,3 +32,6 @@ spec:
         image: europe-west4-docker.pkg.dev/secret-willow-423606-j1/milvus-service/python:latest
         ports:
         - containerPort: 80
+        envFrom:
+          - secretRef:
+              name: secrets
