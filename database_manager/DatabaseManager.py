@@ -32,7 +32,8 @@ class DatabaseManager:
             FieldSchema(name="pk", dtype=DataType.VARCHAR, is_primary=True, auto_id=True, max_length=100),
             FieldSchema(name="name", dtype=DataType.VARCHAR, max_length=800),
             FieldSchema(name="description", dtype=DataType.VARCHAR, max_length=800),
-            FieldSchema(name="topics", dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=100, max_length=100),
+            FieldSchema(name="topics", dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=100,
+                        max_length=100),
             FieldSchema(name="output_format", dtype=DataType.VARCHAR, max_length=100),
             FieldSchema(name="is_active", dtype=DataType.BOOL),
             FieldSchema(name="embeddings", dtype=DataType.FLOAT_VECTOR, dim=384)
@@ -41,9 +42,7 @@ class DatabaseManager:
         return Collection(self.collection_name, schema)
 
     def insert_data(self, name, description, topics, output_format, is_active=True):
-
-        # Load public key and encrypt name and description
-        public_key =  os.environ.get("PUBLIC_KEY") # replace with your public key path
+        public_key = os.environ.get("PUBLIC_KEY")  # replace with your public key path
         encrypted_name = self.encrypt_with_public_key(public_key, name.encode())
         encrypted_description = self.encrypt_with_public_key(public_key, description.encode())
 
@@ -92,14 +91,14 @@ class DatabaseManager:
             limit=10,
             output_fields=["name", "description", "output_format"]
         )
-        
+
         # Decrypt the name and description of each agent
         return self.decrypt_results(results)
 
-    ### Encryption and Decryption methods
-    # In the following method you can encrypt a variable/string to be encrypted by the public key 
-    def encrypt_with_public_key(self, public_key_str, message):
-        
+    # In the following method you can encrypt a variable/string to be encrypted by the public key
+    @staticmethod
+    def encrypt_with_public_key(public_key_str, message):
+
         public_key = serialization.load_pem_public_key(
             public_key_str.encode(),
             backend=default_backend()
@@ -115,24 +114,17 @@ class DatabaseManager:
         )
 
         return encrypted
-    
-    # As the env file is not good to save the private key I keep it in the orginal file and load this
-    def read_private_key(self):
-        try:
-            with open("./KeyGeneration/private_key.pem", "r") as file:
-                private_key = file.read()
-            return private_key
-        except FileNotFoundError:
-            print("The specified file does not exist.")
 
-    def decrypt_with_private_key(self, ciphertext):
+    @staticmethod
+    def decrypt_with_private_key(ciphertext):
 
-        private_key_str = self.read_private_key()#os.environ.get("PRIVATE_KEY")
+        private_key_str = os.environ.get("PRIVATE_KEY")
+        private_key_str = private_key_str.replace("\\n", "\n")
 
         # Check if the private key string is None or empty
         if not private_key_str:
             raise ValueError("The PRIVATE_KEY environment variable is not set or is empty.")
-        
+
         try:
             private_key = serialization.load_pem_private_key(
                 private_key_str.encode(),
@@ -140,10 +132,9 @@ class DatabaseManager:
                 backend=default_backend()
             )
         except ValueError as e:
-            print("Error")
-            raise ValueError("Could not load the private key. The key may be encrypted, in which case you need to provide the password.") from e
-
-        print("loaded key")
+            raise ValueError(
+                "Could not load the private key. The key may be encrypted, in which case you need to provide the "
+                "password.") from e
 
         decrypted = private_key.decrypt(
             ciphertext,
@@ -156,8 +147,6 @@ class DatabaseManager:
 
         return decrypted.decode()
 
-
-    # In thsi function you give the result of the collection search and it will give you the decrypted results back
     def decrypt_results(self, results):
         decrypted_results = []
         for hits in results:
@@ -169,7 +158,7 @@ class DatabaseManager:
                 # get decrypted values
                 decrypted_name = self.decrypt_with_private_key(encrypted_name)
                 decrypted_description = self.decrypt_with_private_key(encrypted_description)
-                
+
                 # Create a new dictionary with the decrypted name and description
                 decrypted_entity = {
                     "name": decrypted_name,
@@ -185,10 +174,9 @@ class DatabaseManager:
                     "id": hit.id,
                     "distance": hit.distance,
                     "score": hit.score,
-                    "entity":decrypted_entity
-                    }
-            
+                    "entity": decrypted_entity
+                }
+
                 decrypted_results.append(hit_dict)
 
         return decrypted_results
-

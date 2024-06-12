@@ -21,17 +21,14 @@ def insert_data(agent: Agent):
 def get_agents(intent: str):
     results = db_manager.similarity_search(intent)
 
-    agents = []
-
-    for result in results:
-        print("Res: ",result)
-    
-        agent = {
+    agents = [
+        {
             "name": result["entity"].get("name"),
             "description": result["entity"].get("description"),
             "output_format": result["entity"].get("output_format"),
         }
-        agents.append(agent)
+        for result in results
+    ]
 
     return Response(message=json.dumps(agents), status_code=200)
 
