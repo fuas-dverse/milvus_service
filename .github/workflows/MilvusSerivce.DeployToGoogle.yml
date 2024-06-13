@@ -1,4 +1,4 @@
-iname: "Deploy Milvus Service to Google Cloud"
+name: "Deploy Milvus Service to Google Cloud"
 
 on:
   push:
