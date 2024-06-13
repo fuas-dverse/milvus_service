@@ -69,6 +69,8 @@ jobs:
 
       - name: Run k6 cloud test
         uses: grafana/k6-action@v0.3.1
+        env:
+            EXTERNAL_IP: ${{ env.EXTERNAL_IP }}
         with:
           cloud: true
           token: ${{ secrets.K6_CLOUD_TOKEN }}
