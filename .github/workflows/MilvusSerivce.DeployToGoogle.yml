@@ -65,13 +65,21 @@ jobs:
 
       - name: Get External IP
         run: |
+          kubectl get svc python -o json
           echo "EXTERNAL_IP=$(kubectl get svc python -o json | jq -r .status.loadBalancer.ingress[0].ip)" >> $GITHUB_ENV
 
-      - name: Run k6 cloud test
-        uses: grafana/k6-action@v0.3.1
-        env:
-            EXTERNAL_IP: ${{ env.EXTERNAL_IP }}
-        with:
-          cloud: true
-          token: ${{ secrets.K6_CLOUD_TOKEN }}
-          filename: script.js
+      - name: Install K6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Login to K6 Cloud
+        run: |
+          k6 login cloud --token ${{ secrets.K6_CLOUD_TOKEN }}
+
+      - name: Run Load Test
+        run: |
+          k6 run --out cloud script.js
