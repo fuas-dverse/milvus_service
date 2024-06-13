@@ -67,10 +67,6 @@ jobs:
         run: |
           echo "EXTERNAL_IP=$(kubectl get svc python -o json | jq -r .status.loadBalancer.ingress[0].ip)" >> $GITHUB_ENV
 
-      - name: Login to Grafana
-        run: |
-          k6 login cloud --token ${{ secrets.K6_CLOUD_TOKEN }}
-
       - name: Run k6 cloud test
         uses: grafana/k6-action@v0.3.1
         with:
