@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
@@ -72,4 +72,4 @@ jobs:
         with:
           cloud: true
           token: ${{ secrets.K6_CLOUD_TOKEN }}
-          flags: --vus 10 --duration 30s ${{ env.EXTERNAL_IP }}
+          flags: --vus 10 --duration 30s --address ${{ env.EXTERNAL_IP }}
