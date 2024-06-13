@@ -62,11 +62,11 @@ jobs:
 
       - name: Connect to GKE Cluster
         run: |
-          gcloud container clusters get-credentials autopilot-hotel-information-agent --region europe-west4 --project ${{ secrets.GOOGLE_PROJECT }}
+          gcloud container clusters get-credentials autopilot-milvus-service --region europe-west4 --project ${{ secrets.GOOGLE_PROJECT }}
 
       - name: Wait for Deployment
         run: |
-          kubectl rollout status deployment/hotel-information-agent
+          kubectl rollout status deployment/python
 
       - name: Get External IP
         run: |
