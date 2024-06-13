@@ -1,7 +1,7 @@
 import http from 'k6/http';
 import { sleep, check } from 'k6';
 
-const targetUrl = __ENV.EXTERNAL_IP;
+const targetUrl = __ENV.TARGET_URL;
 
 export let options = {
     stages: [
@@ -12,7 +12,7 @@ export let options = {
 };
 
 export default function () {
-    let res = http.get(`${targetUrl}/travel`);
+    let res = http.get(`http://${targetUrl}/travel`);
     check(res, {
         'is status 200': (r) => r.status === 200,
         'response time < 500ms': (r) => r.timings.duration < 500,
