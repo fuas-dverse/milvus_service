@@ -76,4 +76,4 @@ jobs:
         with:
           cloud: true
           token: ${{ secrets.K6_CLOUD_TOKEN }}
-          flags: --vus 10 --duration 30s
+          flags: --vus 10 --duration 30s ${{ env.EXTERNAL_IP }}
