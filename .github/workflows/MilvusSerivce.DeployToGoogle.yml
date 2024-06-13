@@ -13,13 +13,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Authenticate with Google Cloud
-        uses: 'google-github-actions/auth@v2'
+        uses: google-github-actions/auth@v2
         with:
           project_id: ${{ secrets.GOOGLE_PROJECT }}
           credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
       - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
+        uses: google-github-actions/setup-gcloud@v2
         with:
           install_components: 'gke-gcloud-auth-plugin'
 
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
       - name: Install K6
         run: |
@@ -51,12 +51,12 @@ jobs:
           sudo apt-get install k6
 
       - name: Authenticate with Google Cloud
-        uses: 'google-github-actions/auth@v2'
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
       - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
+        uses: google-github-actions/setup-gcloud@v2
         with:
           install_components: 'gke-gcloud-auth-plugin'
 
@@ -70,7 +70,7 @@ jobs:
 
       - name: Get External IP
         run: |
-          run: echo "EXTERNAL_IP=kubectl get svc python -o json | jq .status.loadBalancer.ingress[0].ip" >> $GITHUB_ENV
+          echo "EXTERNAL_IP=$(kubectl get svc python -o json | jq -r .status.loadBalancer.ingress[0].ip)" >> $GITHUB_ENV
 
       - name: Login to Grafana
         run: |
