@@ -81,4 +81,4 @@ jobs:
 
       - name: Run Load Test
         run: |
-          k6 run --out cloud script.js -e TARGET_URL=${{ env.EXTERNAL_IP }}
+          ${{ secrets.K6_CLOUD_TOKEN }} k6 run --out cloud script.js -e TARGET_URL=${{ env.EXTERNAL_IP }}
