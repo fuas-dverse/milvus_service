@@ -74,4 +74,4 @@ jobs:
 
       - name: Run Load Test
         run: |
-          k6 run script.js -e TARGET_URL=${{ env.EXTERNAL_IP }}
+          k6 run script.js --quiet -e TARGET_URL=${{ env.EXTERNAL_IP }}
