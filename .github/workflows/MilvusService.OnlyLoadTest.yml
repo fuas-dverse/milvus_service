@@ -1,0 +1,43 @@
+name: "Deploy Milvus Service to Google Cloud"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  load-test:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+      - name: 'Set up Cloud SDK'
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          install_components: 'gke-gcloud-auth-plugin'
+
+      - name: Connect to GKE Cluster
+        run: |
+          gcloud container clusters get-credentials autopilot-milvus-service --region europe-west4 --project ${{ secrets.GOOGLE_PROJECT }}
+
+      - name: Wait for Deployment
+        run: |
+          kubectl rollout status deployment/python
+
+      - name: Get External IP
+        run: |
+          EXTERNAL_IP=$(kubectl get svc python -o json | jq -r .status.loadBalancer.ingress[0].ip)
+          echo "EXTERNAL_IP=${EXTERNAL_IP}" >> $GITHUB_ENV
+          echo "External IP: ${EXTERNAL_IP}"
+
+      - name: Install K6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Run Load Test
+        run: |
+          k6 run script.js --quiet -e TARGET_URL=${{ env.EXTERNAL_IP }}

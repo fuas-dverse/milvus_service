@@ -33,5 +33,10 @@ def get_agents(intent: str):
     return Response(message=json.dumps(agents), status_code=200)
 
 
+@app.get("/health/test")
+def test():
+    return Response(message="Test", status_code=200)
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0")

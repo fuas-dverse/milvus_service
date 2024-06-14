@@ -16,7 +16,7 @@ export let options = {
 };
 
 export default function () {
-    let res = http.get(`http://${targetUrl}/travel`);
+    let res = http.get(`http://${targetUrl}/health/test`);
     check(res, {
         'is status 200': (r) => r.status === 200,
     });
