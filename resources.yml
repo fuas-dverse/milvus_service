@@ -37,9 +37,23 @@ spec:
               name: secrets
         resources:
           requests:
-            cpu: "100m"
+            cpu: "250m"
+            memory: "256Mi"
           limits:
-            cpu: "500m"
+            cpu: "1"
+            memory: "1Gi"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 20
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -50,12 +64,18 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: python
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 10
   metrics:
   - type: Resource
     resource:
       name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  - type: Resource
+    resource:
+      name: memory
       target:
         type: Utilization
         averageUtilization: 75

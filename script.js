@@ -5,13 +5,13 @@ const targetUrl = __ENV.TARGET_URL;
 
 export let options = {
     stages: [
-        { duration: '30s', target: 2500 },
-        { duration: '30s', target: 2500 },
-        { duration: '30s', target: 5000 },
-        { duration: '30s', target: 5000 },
-        { duration: '30s', target: 10000 },
-        { duration: '30s', target: 10000 },
-        { duration: '30s', target: 0 },
+        { duration: '1m', target: 100 },   // Ramp-up to 100 users
+        { duration: '5m', target: 100 },   // Hold at 100 users
+        { duration: '1m', target: 500 },   // Ramp-up to 500 users
+        { duration: '5m', target: 500 },   // Hold at 500 users
+        { duration: '1m', target: 1000 },  // Ramp-up to 1000 users
+        { duration: '5m', target: 1000 },  // Hold at 1000 users
+        { duration: '1m', target: 0 },     // Ramp-down to 0 users
     ],
 };
 
