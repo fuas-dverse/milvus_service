@@ -38,6 +38,11 @@ def get_topics():
     return Response(message=json.dumps(db_manager.get_topics()), status_code=200)
 
 
+@app.get("/get/exists")
+def check_if_agent_exists(name: str):
+    return Response(message=json.dumps(db_manager.check_if_agent_exists(name)), status_code=200)
+
+
 @app.get("/health/test")
 def test():
     return Response(message="Test", status_code=200)

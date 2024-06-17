@@ -96,3 +96,15 @@ class DatabaseManager:
                 topics.append(topic)
 
         return list(set(topics))
+
+    def check_if_agent_exists(self, name):
+        collection = Collection(self.collection_name)
+        collection.load()
+        result = collection.query(
+            expr=f"name == '{name}'"
+        )
+
+        return len(result) > 0
+
+
+
