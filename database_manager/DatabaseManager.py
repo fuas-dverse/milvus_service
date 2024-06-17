@@ -1,3 +1,4 @@
+import json
 import os
 from dotenv import load_dotenv
 from pymilvus import connections, utility, FieldSchema, CollectionSchema, DataType, Collection
@@ -26,7 +27,8 @@ class DatabaseManager:
             FieldSchema(name="pk", dtype=DataType.VARCHAR, is_primary=True, auto_id=True, max_length=100),
             FieldSchema(name="name", dtype=DataType.VARCHAR, max_length=800),
             FieldSchema(name="description", dtype=DataType.VARCHAR, max_length=800),
-            FieldSchema(name="topics", dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=100, max_length=100),
+            FieldSchema(name="topics", dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=100,
+                        max_length=100),
             FieldSchema(name="output_format", dtype=DataType.VARCHAR, max_length=100),
             FieldSchema(name="is_active", dtype=DataType.BOOL),
             FieldSchema(name="embeddings", dtype=DataType.FLOAT_VECTOR, dim=384)
@@ -80,3 +82,17 @@ class DatabaseManager:
         # Decrypt the name and description of each agent
         return results
 
+    def get_topics(self):
+        collection = Collection(self.collection_name)
+        collection.load()
+        result = collection.query(
+            expr="pk != ''",
+            output_fields=["topics"]
+        )
+
+        topics = []
+        for result in result:
+            for topic in result.get("topics"):
+                topics.append(topic)
+
+        return list(set(topics))

@@ -33,6 +33,11 @@ def get_agents(intent: str):
     return Response(message=json.dumps(agents), status_code=200)
 
 
+@app.get("/get/topics")
+def get_topics():
+    return Response(message=json.dumps(db_manager.get_topics()), status_code=200)
+
+
 @app.get("/health/test")
 def test():
     return Response(message="Test", status_code=200)
