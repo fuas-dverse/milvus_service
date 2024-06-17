@@ -18,6 +18,7 @@ class DatabaseManager:
 
         if not self.check_collection():
             self.create_collection()
+            self.create_index()
 
     def check_collection(self):
         return utility.has_collection(self.collection_name)
@@ -27,8 +28,7 @@ class DatabaseManager:
             FieldSchema(name="pk", dtype=DataType.VARCHAR, is_primary=True, auto_id=True, max_length=100),
             FieldSchema(name="name", dtype=DataType.VARCHAR, max_length=800),
             FieldSchema(name="description", dtype=DataType.VARCHAR, max_length=800),
-            FieldSchema(name="topics", dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=100,
-                        max_length=100),
+            FieldSchema(name="topics", dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=100, max_length=100),
             FieldSchema(name="output_format", dtype=DataType.VARCHAR, max_length=100),
             FieldSchema(name="is_active", dtype=DataType.BOOL),
             FieldSchema(name="embeddings", dtype=DataType.FLOAT_VECTOR, dim=384)
@@ -39,23 +39,27 @@ class DatabaseManager:
     def insert_data(self, name, description, topics, output_format, is_active=True):
         if not self.check_collection():
             self.create_collection()
+            self.create_index()
 
-        embeddings = self.generate_embeddings(topics)
+        try:
+            embeddings = self.generate_embeddings(topics)
 
-        entities = [
-            [name],
-            [description],
-            [topics],
-            [output_format],
-            [is_active],
-            [embeddings]
-        ]
+            entities = [
+                [name],
+                [description],
+                [topics],
+                [output_format],
+                [is_active],
+                [embeddings]
+            ]
 
-        collection = Collection(self.collection_name)
-        collection.insert(entities)
+            collection = Collection(self.collection_name)
+            collection.insert(entities)
 
-        collection.flush()
-        self.create_index()
+            collection.flush()
+            self.create_index()
+        except Exception as e:
+            print(e)
 
     def generate_embeddings(self, topics):
         return self.embedding_model.encode(", ".join(topics))
@@ -70,50 +74,65 @@ class DatabaseManager:
         collection.create_index(field_name="embeddings", index_params=index)
 
     def similarity_search(self, topics):
-        collection = Collection(self.collection_name)
-        collection.load()
-        vector_to_search = self.generate_embeddings(topics)
-        search_params = {"metric_type": "L2", "params": {"nprobe": 10}}
-        results = collection.search(
-            data=[vector_to_search],
-            anns_field="embeddings",
-            param=search_params,
-            limit=10,
-            output_fields=["name", "description", "output_format"]
-        )
+        if not self.check_collection():
+            self.create_collection()
+            self.create_index()
 
-        # Decrypt the name and description of each agent
-        return results
+        try:
+            collection = Collection(self.collection_name)
+            collection.load()
+            vector_to_search = self.generate_embeddings(topics)
+            search_params = {"metric_type": "L2", "params": {"nprobe": 10}}
+            results = collection.search(
+                data=[vector_to_search],
+                anns_field="embeddings",
+                param=search_params,
+                limit=10,
+                output_fields=["name", "description", "output_format"]
+            )
+
+            # Decrypt the name and description of each agent
+            return results
+        except Exception as e:
+            print(e)
 
     def get_topics(self):
         if not self.check_collection():
             self.create_collection()
+            self.create_index()
 
-        collection = Collection(self.collection_name)
-        collection.load()
-        result = collection.query(
-            expr="pk != ''",
-            output_fields=["topics"]
-        )
+        try:
+            collection = Collection(self.collection_name)
+            collection.load()
+            result = collection.query(
+                expr="pk != ''",
+                output_fields=["topics"]
+            )
 
-        topics = []
-        for result in result:
-            for topic in result.get("topics"):
-                topics.append(topic)
+            topics = []
+            for result in result:
+                for topic in result.get("topics"):
+                    topics.append(topic)
 
-        return list(set(topics))
+            return list(set(topics))
+        except Exception as e:
+            print(e)
 
     def check_if_agent_exists(self, name):
         if not self.check_collection():
             self.create_collection()
+            self.create_index()
 
-        collection = Collection(self.collection_name)
-        collection.load()
-        result = collection.query(
-            expr=f"name == '{name}'"
-        )
+        try:
+            collection = Collection(self.collection_name)
+            collection.load()
+            result = collection.query(
+                expr=f"name == '{name}'"
+            )
 
-        return len(result) > 0
+            return len(result) > 0
+        except Exception as e:
+            print(e)
 
 
 
