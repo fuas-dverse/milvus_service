@@ -37,6 +37,9 @@ class DatabaseManager:
         return Collection(self.collection_name, schema)
 
     def insert_data(self, name, description, topics, output_format, is_active=True):
+        if not self.check_collection():
+            self.create_collection()
+
         embeddings = self.generate_embeddings(topics)
 
         entities = [
