@@ -86,6 +86,9 @@ class DatabaseManager:
         return results
 
     def get_topics(self):
+        if not self.check_collection():
+            self.create_collection()
+
         collection = Collection(self.collection_name)
         collection.load()
         result = collection.query(
@@ -101,6 +104,9 @@ class DatabaseManager:
         return list(set(topics))
 
     def check_if_agent_exists(self, name):
+        if not self.check_collection():
+            self.create_collection()
+
         collection = Collection(self.collection_name)
         collection.load()
         result = collection.query(
